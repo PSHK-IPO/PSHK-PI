@@ -99,6 +99,11 @@
 
   .status-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
   .status-badge.pending { background: #fff3cd; color: #856404; }
+  .status-badge.needinfo { background: #ffe0b2; color: #e65100; }
+  .status-badge.rejected { background: #ffcdd2; color: #c62828; }
+  .reason-list { margin: 8px 0 0; padding-left: 18px; }
+  .reason-list li { font-size: 14px; color: var(--text); margin-bottom: 6px; line-height: 1.45; }
+  .result-icon.warn { background: #fff3e0; color: #e65100; }
 
   .rep-card { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 14px; }
   .rep-avatar { width: 44px; height: 44px; border-radius: 50%; background: #e5e5ea; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
@@ -364,7 +369,41 @@
         <p class="text-sm text-center mt-16" style="color:var(--text-sec)">審批結果將以 App 推送及電郵通知。</p>
       </div>
 
-      <!-- 6. Approved -->
+      <!-- 6. Need More Info -->
+      <div class="screen" id="screen-needinfo">
+        <div class="result-icon warn">!</div>
+        <h1 class="text-center">需要補充資料</h1>
+        <p class="text-center mb-8">您的申請未能通過審核，請按以下原因補件後重新提交</p>
+
+        <div class="card">
+          <div class="summary-row"><span class="label">申請編號</span><span class="value">PI-20261111-88421</span></div>
+          <div class="summary-row"><span class="label">當前狀態</span><span class="value"><span class="status-badge needinfo">Need More Info</span></span></div>
+          <div class="summary-row"><span class="label">核驗路徑</span><span class="value" id="needinfoPath">—</span></div>
+        </div>
+
+        <div class="card yellow">
+          <strong style="color:var(--text)">審核意見（請清楚列出）</strong>
+          <ul class="reason-list" id="needinfoReasons">
+            <li>資產不滿足 800 萬港元或等值外幣的要求</li>
+            <li>憑證上的姓名與您開戶的姓名不一致</li>
+            <li>憑證上缺少您的姓名</li>
+            <li>憑證上缺少發出機構的信息</li>
+            <li>憑證上缺少資產數額</li>
+            <li>憑證上缺少幣種信息</li>
+            <li>憑證缺少投資組合信息</li>
+            <li>憑證上缺少發出日期</li>
+            <li>所上傳資料為無效憑證</li>
+          </ul>
+        </div>
+
+        <div class="card blue">
+          <strong style="color:var(--text)">下一步操作</strong>
+          <p class="mt-8 text-sm">點擊「補充證明」後，系統將退回至原路徑重新上載。如有疑問可聯絡線上客服／客戶經理。</p>
+          <a href="javascript:void(0)" class="call-btn" onclick="showToast('已提交回撥申請')">📞 聯絡線上客服 / 客戶經理</a>
+        </div>
+      </div>
+
+      <!-- 7. Approved -->
       <div class="screen" id="screen-approved">
         <div class="result-icon ok">✓</div>
         <h1 class="text-center">認證成功</h1>
@@ -403,8 +442,8 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // Screens order: Path A 已移除，直接從 Hub 跳至 Risk
-  const screens = ['scenario', 'hub', 'pathB', 'risk', 'review', 'status', 'approved'];
+  // Screens order: Path A 已移除，直接從 Hub 跳至 Risk；新增 needinfo
+  const screens = ['scenario', 'hub', 'pathB', 'risk', 'review', 'status', 'needinfo', 'approved'];
   let current = 0;
   let scenario = null;   // 'A' | 'B'
   let riskScrolled = false;
@@ -434,16 +473,20 @@
       risk: '風險披露',
       review: '申請摘要與驗證',
       status: '申請狀態',
+      needinfo: '需要補充資料',
       approved: '認證結果'
     };
     document.getElementById('headerTitle').textContent = titles[id] || '專業投資者認證';
 
-    const progressMap = { scenario:5, hub:18, pathB:38, risk:55, review:72, status:88, approved:100 };
+    const progressMap = { scenario:5, hub:18, pathB:38, risk:55, review:72, status:85, needinfo:90, approved:100 };
     document.getElementById('progressBar').style.width = (progressMap[id] || 0) + '%';
 
     const btnNext = document.getElementById('btnNext');
     const btnPrev = document.getElementById('btnPrev');
-    btnPrev.style.display = (current === 0 || id === 'status' || id === 'approved') ? 'none' : 'block';
+    // Default prev behaviour (overridden on status)
+    btnPrev.textContent = '上一步';
+    btnPrev.onclick = goBack;
+    btnPrev.style.display = (current === 0 || id === 'needinfo' || id === 'approved') ? 'none' : 'block';
 
     // Hub detect text
     if (id === 'hub' && scenario) {
@@ -490,9 +533,36 @@
         current = 5; showScreen('status');
       };
     } else if (id === 'status') {
+      // Demo: primary = 通過；secondary-style via prev area or dual action
       btnNext.textContent = '模擬審批通過';
       btnNext.disabled = false;
-      btnNext.onclick = () => { current = 6; showScreen('approved'); };
+      btnNext.onclick = () => { current = 7; showScreen('approved'); };
+      btnPrev.style.display = 'block';
+      btnPrev.textContent = '模擬需補件';
+      btnPrev.onclick = () => {
+        document.getElementById('needinfoPath').textContent = scenario === 'A' ? '路徑 A（內部資產 · 系統自動）' : '路徑 B（外部證明 · 系統自動）';
+        // Demo: 顯示常見補件原因（實際由審核意見回傳）
+        current = 6; showScreen('needinfo');
+      };
+    } else if (id === 'needinfo') {
+      btnNext.textContent = '補充證明';
+      btnNext.disabled = false;
+      btnNext.onclick = () => {
+        // 退回至原路徑重新上載
+        files = [];
+        const list = document.getElementById('uploadList');
+        if (list) list.innerHTML = '';
+        if (scenario === 'A') {
+          // Path A 無上載頁，退回 Hub 再進風險（或直接 risk）
+          current = 1;
+          showScreen('hub');
+          showToast('已退回，請重新提交申請');
+        } else {
+          current = 2;
+          showScreen('pathB');
+          showToast('已退回至上傳頁，請重新上載證明');
+        }
+      };
       btnPrev.style.display = 'none';
     } else if (id === 'approved') {
       btnNext.textContent = '完成';
@@ -505,6 +575,8 @@
   function goBack() {
     if (current <= 0) return;
     const id = screens[current];
+    // Reset prev button label when not on status
+    document.getElementById('btnPrev').textContent = '上一步';
     if (id === 'risk') {
       // 從風險披露返回：Path A 回 Hub，Path B 回 pathB
       current = scenario === 'A' ? 1 : 2;
@@ -512,6 +584,9 @@
       current = 1; // back to hub
     } else if (id === 'hub') {
       current = 0;
+    } else if (id === 'status') {
+      // status 的「模擬需補件」已在 updateUI 綁定，此處不走 goBack
+      return;
     } else {
       current--;
     }
