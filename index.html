@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
@@ -126,7 +125,7 @@
   .net-big.pass { color: var(--success); }
   .net-big.under { color: var(--danger); }
 
-  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-12px); background: rgba(0,0,0,0.82); color: #fff; padding: 11px 18px; border-radius: 10px; font-size: 14px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 200; max-width: 86%; text-align: center; }
+  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-12px); background: rgba(0,0,black,0.82); color: #fff; padding: 11px 18px; border-radius: 10px; font-size: 14px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 200; max-width: 86%; text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
@@ -205,19 +204,6 @@
         <div class="auto-badge">系統自動路由 · Path A</div>
         <h1>內部資產即時核驗</h1>
         <p class="mb-8">系統已整合您於輝立的證券、期貨及現金帳戶實時估值。</p>
-
-        <div class="card green">
-          <div class="summary-row"><span class="label">證券帳戶市值</span><span class="value" id="valSec">—</span></div>
-          <div class="summary-row"><span class="label">期貨帳戶權益</span><span class="value" id="valFut">—</span></div>
-          <div class="summary-row"><span class="label">現金帳戶餘額</span><span class="value" id="valCash">—</span></div>
-          <div class="summary-row"><span class="label">減：Margin 欠款 / 質押借貸</span><span class="value" style="color:var(--danger)" id="valMargin">—</span></div>
-          <div class="divider"></div>
-          <div class="summary-row">
-            <span class="label fw-600">Net Portfolio 淨資產</span>
-            <span class="value net-big pass" id="valNet">—</span>
-          </div>
-          <p class="text-sm mt-8">估值日期：2026-11-11（當日收盤牌價折算 · Cap.571D s.2A）</p>
-        </div>
 
         <div class="card green">
           <p><strong style="color:var(--text)">已達標</strong>：淨資產 ≥ HKD 8,000,000，可直接繼續申請。</p>
@@ -426,15 +412,6 @@
   let files = [];
   let otpTimer = null;
 
-  const dataA = {
-    sec: 'HKD 7,420,000', fut: 'HKD 1,680,000', cash: 'HKD 1,150,000',
-    margin: '− HKD 400,000', net: 'HKD 9,850,000'
-  };
-  const dataB = {
-    sec: 'HKD 4,820,000', fut: 'HKD 980,000', cash: 'HKD 820,000',
-    margin: '− HKD 420,000', net: 'HKD 6,200,000'
-  };
-
   function selectScenario(s) {
     scenario = s;
     document.getElementById('scA').classList.toggle('selected-a', s === 'A');
@@ -443,12 +420,7 @@
   }
 
   function fillPathA() {
-    const d = dataA;
-    document.getElementById('valSec').textContent = d.sec;
-    document.getElementById('valFut').textContent = d.fut;
-    document.getElementById('valCash').textContent = d.cash;
-    document.getElementById('valMargin').textContent = d.margin;
-    document.getElementById('valNet').textContent = d.net;
+    // Removed due to system limitation on futures account calculation
   }
 
   function showScreen(id) {
@@ -464,7 +436,7 @@
     const titles = {
       scenario: 'Demo 場景選擇',
       hub: '專業投資者認證',
-      pathA: '內部資產核驗',
+      pathA: '內部資產即時核驗',
       pathB: '上傳資產證明',
       risk: '風險披露',
       review: '申請摘要與驗證',
@@ -519,7 +491,7 @@
       btnNext.disabled = !ok;
       btnNext.onclick = () => {
         document.getElementById('reviewPath').textContent = scenario === 'A' ? '路徑 A（內部資產 · 系統自動）' : '路徑 B（外部證明 · 系統自動）';
-        document.getElementById('reviewValue').textContent = scenario === 'A' ? dataA.net : '待人工核實（外部證明）';
+        document.getElementById('reviewValue').textContent = scenario === 'A' ? 'HKD 9,850,000' : '待人工核實（外部證明）';
         current = 5; showScreen('review');
         startOtpTimer();
       };
@@ -631,5 +603,3 @@
 </script>
 </body>
 </html>
-Grok finished responding
-根據flow圖生成新HTML - Grok
