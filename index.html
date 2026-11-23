@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="zh-HK">
 <head>
@@ -83,7 +82,7 @@
   .req-table th, .req-table td { border: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; }
   .req-table th { background: #f5f5f7; width: 26%; font-weight: 600; color: var(--text); }
 
-  .risk-box { max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: #fff; margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
+  .risk-box { max-height: 340px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: #fff; margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
   .scroll-hint { text-align: center; font-size: 13px; color: var(--warning); margin-bottom: 8px; font-weight: 500; }
   .scroll-hint.done { color: var(--success); }
 
@@ -128,6 +127,10 @@
 
   .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-12px); background: rgba(0,0,0,0.82); color: #fff; padding: 11px 18px; border-radius: 10px; font-size: 14px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 200; max-width: 86%; text-align: center; }
   .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  .risk-section-title { font-size: 15px; font-weight: 600; color: var(--text); margin: 14px 0 6px; }
+  .risk-box p { margin-bottom: 10px; }
+  .risk-box ul { margin-bottom: 10px; }
 </style>
 </head>
 <body>
@@ -155,7 +158,7 @@
         <button class="scenario-btn" id="scA" onclick="selectScenario('A')">
           <span class="tag a">場景 A · 滿 800 萬</span>
           <strong>內部資產 ≥ HKD 8,000,000</strong>
-          <span>系統自動識別並進入 <b>Path A</b>（內部資產即時核驗）。模擬淨資產 HKD 9.85M。</span>
+          <span>系統自動識別並進入 <b>Path A</b>（直接進入風險披露）。模擬淨資產 HKD 9.85M。</span>
         </button>
 
         <button class="scenario-btn" id="scB" onclick="selectScenario('B')">
@@ -189,7 +192,7 @@
         <h2>3. 申請方式</h2>
         <p>系統會根據您現有帳戶資產自動判定最優路徑：</p>
         <ul class="list-disc mt-8">
-          <li><strong>路徑 A</strong>：輝立內部資產即時核驗（極速）</li>
+          <li><strong>路徑 A</strong>：內部資產達標，直接進入風險披露（極速）</li>
           <li><strong>路徑 B</strong>：上載外部資產證明（1 個工作天審批）</li>
         </ul>
 
@@ -200,36 +203,7 @@
         </div>
       </div>
 
-      <!-- 2A. Path A -->
-      <div class="screen" id="screen-pathA">
-        <div class="auto-badge">系統自動路由 · Path A</div>
-        <h1>內部資產即時核驗</h1>
-        <p class="mb-8">系統已整合您於輝立的證券、期貨及現金帳戶實時估值。</p>
-
-        <div class="card green">
-          <div class="summary-row"><span class="label">證券帳戶市值</span><span class="value" id="valSec">—</span></div>
-          <div class="summary-row"><span class="label">期貨帳戶權益</span><span class="value" id="valFut">—</span></div>
-          <div class="summary-row"><span class="label">現金帳戶餘額</span><span class="value" id="valCash">—</span></div>
-          <div class="summary-row"><span class="label">減：Margin 欠款 / 質押借貸</span><span class="value" style="color:var(--danger)" id="valMargin">—</span></div>
-          <div class="divider"></div>
-          <div class="summary-row">
-            <span class="label fw-600">Net Portfolio 淨資產</span>
-            <span class="value net-big pass" id="valNet">—</span>
-          </div>
-          <p class="text-sm mt-8">估值日期：2026-11-11（當日收盤牌價折算 · Cap.571D s.2A）</p>
-        </div>
-
-        <div class="card green">
-          <p><strong style="color:var(--text)">已達標</strong>：淨資產 ≥ HKD 8,000,000，可直接繼續申請。</p>
-        </div>
-
-        <label class="consent-item mt-12">
-          <input type="checkbox" id="pathAConfirm">
-          <span>本人確認上述估值資料正確，並知悉淨資產計算已扣除內部債務。</span>
-        </label>
-      </div>
-
-      <!-- 2B. Path B -->
+      <!-- 2B. Path B (Path A 已移除，直接跳至風險披露) -->
       <div class="screen" id="screen-pathB">
         <div class="auto-badge">系統自動路由 · Path B</div>
         <h1>上傳資產證明</h1>
@@ -268,40 +242,51 @@
         <div class="upload-list" id="uploadList"></div>
       </div>
 
-      <!-- 3. Risk Disclosure -->
+      <!-- 3. Risk Disclosure (完整版) -->
       <div class="screen" id="screen-risk">
         <h1>風險披露與後果揭示</h1>
         <div class="rep-card">
           <div class="rep-avatar">👤</div>
           <div>
             <div class="name">持牌代表</div>
-            <div class="lic">如有疑問可聯絡您的客戶經理或客服</div>
+            <div class="lic">如有疑問可聯絡客戶經理或客服</div>
           </div>
         </div>
 
         <div class="scroll-hint" id="scrollHint">↓ 請滑動閱讀至底部以啟用同意框</div>
         <div class="risk-box" id="riskBox" onscroll="checkScroll()">
-          <p><strong>1.</strong> 成功申請成為個人專業投資者之後，輝立證券可為您提供更多投資產品。但該類產品有可能未經香港證監會認可，投資通常帶有較高風險。建議申請前先諮詢獨立第三方專業意見。</p>
-          <br>
-          <p><strong>2.</strong> 成為個人專業投資者後，您清楚明白輝立證券可獲豁免履行《操守準則》第 15.5 段及《成交單據規則》中訂明的某些要求。</p>
-          <br>
-          <p>儘管輝立證券實際上可能仍會提供部分服務／資訊，您明白這並非基於監管責任。可獲豁免的義務包括：</p>
-          <br>
-          <p class="fw-600" style="color:var(--text)">為客戶提供資料</p>
+          <p>成功申請成為個人專業投資者之後，輝立證券可為您提供更多投資產品。但該類產品有可能未經香港證監會認可，投資通常帶有較高風險。建議申請前先諮詢獨立第三方專業意見。</p>
+
+          <p>成為個人專業投資者後，您清楚明白輝立證券可獲豁免履行《證券及期貨事務監察委員會持牌人或註冊人操守準則》第 15.5 段及《證券及期貨（成交單據、戶口結單及收據）規則》（下稱「《成交單據規則》」）中訂明的某些要求。</p>
+
+          <div class="risk-section-title">閱讀聲明</div>
+          <p>作為個人專業投資者，我清楚明白輝立證券（香港）有限公司（下稱「輝立證券」）與我作為客戶的互動過程中，輝立證券可獲豁免履行《證券及期貨事務監察委員會持牌人或註冊人操守準則》第 15.5 段及《證券及期貨（成交單據、戶口結單及收據）規則》（下稱「《成交單據規則》」）中訂明的某些要求。</p>
+
+          <p>儘管輝立證券實際上可能會向我提供以下部分或全部的服務／資訊，我明白輝立證券並不是基於監管責任而採取上述行動。輝立證券可獲豁免履行的相關義務如下：</p>
+
+          <div class="risk-section-title">為客戶提供資料</div>
           <ul class="list-disc">
-            <li>無需提供業務資料及僱員身份與受僱狀況；</li>
-            <li>完成交易後無需盡快確認交易重點；</li>
-            <li>無需提供納斯達克試驗計劃相關資料文件。</li>
+            <li>輝立證券無需向我提供有關輝立證券的業務資料及其僱員及其他代表其行事的人士的身份和受僱狀況的資料；</li>
+            <li>完成交易後，輝立證券無需盡快與我確認有關該宗交易的重點；及</li>
+            <li>如我欲通過香港交易所交易納入納斯達克－美國證券交易所試驗計劃的證券，輝立證券無需向我提供關於該計劃的資料文件。</li>
           </ul>
-          <br>
-          <p class="fw-600" style="color:var(--text)">成交單據、戶口結單或收據</p>
+
+          <div class="risk-section-title">向客戶提供成交單據、戶口結單或收據</div>
           <ul class="list-disc">
-            <li>無需提供《成交單據規則》所要求的文件。</li>
+            <li>無需向我提供《成交單據規則》所要求的成交單據、戶口結單或收據。</li>
           </ul>
-          <br>
-          <p><strong>撤回權利</strong>：您可隨時以書面撤回 PI 身分，提交後進入 <strong>10 個營業日通知期</strong>。</p>
-          <br>
-          <p>個人專業投資者嚴格限定為 <strong>Tier 1（15.5 豁免）</strong>。</p>
+
+          <div class="risk-section-title">通過勾選以下同意框及提交申請，即表示我：</div>
+          <ol class="list-disc" style="padding-left:20px; list-style-type:decimal;">
+            <li>確認在本申請中提供的資訊準確無誤；</li>
+            <li>確認我了解被視為個人專業投資者的風險及後果；</li>
+            <li>知悉及明白我有權在任何時候以書面形式通知輝立證券，撤回被視為個人專業投資者（不論就所有或任何部分產品或市場而言）的權利（提交後進入 10 個營業日通知期）；</li>
+            <li>同意被視為個人專業投資者（就所有或任何部分產品或市場而言，個人專業投資者嚴格限定為 Tier 1（15.5 豁免））；</li>
+            <li>明白提交本申請不代表輝立證券已批准我成為個人專業投資者，輝立證券可以不提供任何理由而拒絕批准；</li>
+            <li>承諾我將立刻通知輝立證券任何影響被視為個人專業投資者的變動；及</li>
+            <li>同意在有任何問題或疑慮時徵求獨立第三方的專業意見。</li>
+          </ol>
+
           <div style="height:16px"></div>
           <p class="text-center text-sm" style="color:#aaa">— 已閱讀至底部 —</p>
         </div>
@@ -309,15 +294,15 @@
         <div id="consentArea" style="opacity:0.4;pointer-events:none">
           <div class="consent-item">
             <input type="checkbox" id="c1" onchange="checkConsents()">
-            <label for="c1">本人完全理解 15.3B 披露之專業投資者風險與免除法定保護之後果</label>
+            <label for="c1">本人完全理解上述 15.5 披露之專業投資者風險與免除法定保護之後果</label>
           </div>
           <div class="consent-item">
             <input type="checkbox" id="c2" onchange="checkConsents()">
-            <label for="c2">本人自願接受專業投資者身分並確認上述所勾選之特定產品適用範圍</label>
+            <label for="c2">本人自願接受專業投資者身分（Tier 1），並確認上述特定產品適用範圍</label>
           </div>
           <div class="consent-item">
             <input type="checkbox" id="c3" onchange="checkConsents()">
-            <label for="c3">本人確認知悉並理解擁有隨時以書面撤回此 PI 身分或變更適用範圍的法定權利</label>
+            <label for="c3">本人確認知悉並理解擁有隨時以書面撤回此 PI 身分或變更適用範圍的法定權利（提交後 10 個營業日通知期）</label>
           </div>
         </div>
       </div>
@@ -330,7 +315,7 @@
         <div class="card">
           <div class="summary-row"><span class="label">身分類別</span><span class="value">個人專業投資者 (Tier 1)</span></div>
           <div class="summary-row"><span class="label">核驗路徑</span><span class="value" id="reviewPath">—</span></div>
-          <div class="summary-row"><span class="label">淨資產估值</span><span class="value" id="reviewValue">—</span></div>
+          <!-- 淨資產估值已移除 -->
           <div class="summary-row"><span class="label">產品授權範圍</span><span class="value">國際配售 / 債券 / VA 等</span></div>
           <div class="summary-row"><span class="label">風險披露</span><span class="value" style="color:var(--success)">已完成閱讀並同意</span></div>
         </div>
@@ -418,22 +403,13 @@
 <div class="toast" id="toast"></div>
 
 <script>
-  // Screens order (no manual path selection)
-  const screens = ['scenario', 'hub', 'pathA', 'pathB', 'risk', 'review', 'status', 'approved'];
+  // Screens order: Path A 已移除，直接從 Hub 跳至 Risk
+  const screens = ['scenario', 'hub', 'pathB', 'risk', 'review', 'status', 'approved'];
   let current = 0;
   let scenario = null;   // 'A' | 'B'
   let riskScrolled = false;
   let files = [];
   let otpTimer = null;
-
-  const dataA = {
-    sec: 'HKD 7,420,000', fut: 'HKD 1,680,000', cash: 'HKD 1,150,000',
-    margin: '− HKD 400,000', net: 'HKD 9,850,000'
-  };
-  const dataB = {
-    sec: 'HKD 4,820,000', fut: 'HKD 980,000', cash: 'HKD 820,000',
-    margin: '− HKD 420,000', net: 'HKD 6,200,000'
-  };
 
   function selectScenario(s) {
     scenario = s;
@@ -442,20 +418,10 @@
     updateUI();
   }
 
-  function fillPathA() {
-    const d = dataA;
-    document.getElementById('valSec').textContent = d.sec;
-    document.getElementById('valFut').textContent = d.fut;
-    document.getElementById('valCash').textContent = d.cash;
-    document.getElementById('valMargin').textContent = d.margin;
-    document.getElementById('valNet').textContent = d.net;
-  }
-
   function showScreen(id) {
     document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
     document.getElementById('screen-' + id).classList.add('active');
     document.getElementById('mainContent').scrollTop = 0;
-    if (id === 'pathA') fillPathA();
     updateUI();
   }
 
@@ -464,7 +430,6 @@
     const titles = {
       scenario: 'Demo 場景選擇',
       hub: '專業投資者認證',
-      pathA: '內部資產核驗',
       pathB: '上傳資產證明',
       risk: '風險披露',
       review: '申請摘要與驗證',
@@ -473,7 +438,7 @@
     };
     document.getElementById('headerTitle').textContent = titles[id] || '專業投資者認證';
 
-    const progressMap = { scenario:5, hub:15, pathA:35, pathB:35, risk:55, review:72, status:88, approved:100 };
+    const progressMap = { scenario:5, hub:18, pathB:38, risk:55, review:72, status:88, approved:100 };
     document.getElementById('progressBar').style.width = (progressMap[id] || 0) + '%';
 
     const btnNext = document.getElementById('btnNext');
@@ -483,7 +448,7 @@
     // Hub detect text
     if (id === 'hub' && scenario) {
       document.getElementById('hubDetectText').innerHTML = scenario === 'A'
-        ? '偵測結果：內部淨資產約 <b>HKD 9.85M</b>，已達標。<br>系統將自動進入 <b>路徑 A（內部即時核驗）</b>。'
+        ? '偵測結果：內部淨資產約 <b>HKD 9.85M</b>，已達標。<br>系統將自動進入 <b>路徑 A（直接進入風險披露）</b>。'
         : '偵測結果：內部淨資產約 <b>HKD 6.20M</b>，未達 800 萬。<br>系統將自動進入 <b>路徑 B（上載外部證明）</b>。';
     }
 
@@ -495,32 +460,26 @@
       btnNext.textContent = '繼續';
       btnNext.disabled = false;
       btnNext.onclick = () => {
-        // System auto route
+        // Path A：直接跳至風險披露；Path B：進入上載頁
         if (scenario === 'A') {
-          current = 2; // pathA
-          showScreen('pathA');
+          current = 3; // risk
+          showScreen('risk');
         } else {
-          current = 3; // pathB
+          current = 2; // pathB
           showScreen('pathB');
         }
       };
-    } else if (id === 'pathA') {
-      btnNext.textContent = '下一步';
-      btnNext.disabled = !document.getElementById('pathAConfirm').checked;
-      btnNext.onclick = () => { current = 4; showScreen('risk'); };
-      document.getElementById('pathAConfirm').onchange = () => updateUI();
     } else if (id === 'pathB') {
       btnNext.textContent = '下一步';
       btnNext.disabled = files.length === 0;
-      btnNext.onclick = () => { current = 4; showScreen('risk'); };
+      btnNext.onclick = () => { current = 3; showScreen('risk'); };
     } else if (id === 'risk') {
       btnNext.textContent = '下一步';
       const ok = riskScrolled && document.getElementById('c1').checked && document.getElementById('c2').checked && document.getElementById('c3').checked;
       btnNext.disabled = !ok;
       btnNext.onclick = () => {
         document.getElementById('reviewPath').textContent = scenario === 'A' ? '路徑 A（內部資產 · 系統自動）' : '路徑 B（外部證明 · 系統自動）';
-        document.getElementById('reviewValue').textContent = scenario === 'A' ? dataA.net : '待人工核實（外部證明）';
-        current = 5; showScreen('review');
+        current = 4; showScreen('review');
         startOtpTimer();
       };
     } else if (id === 'review') {
@@ -528,12 +487,12 @@
       btnNext.disabled = !isOtpComplete();
       btnNext.onclick = () => {
         document.getElementById('etaText').textContent = scenario === 'A' ? 'Path A：接近即時核准' : 'Path B：1 個工作天內人工審批';
-        current = 6; showScreen('status');
+        current = 5; showScreen('status');
       };
     } else if (id === 'status') {
       btnNext.textContent = '模擬審批通過';
       btnNext.disabled = false;
-      btnNext.onclick = () => { current = 7; showScreen('approved'); };
+      btnNext.onclick = () => { current = 6; showScreen('approved'); };
       btnPrev.style.display = 'none';
     } else if (id === 'approved') {
       btnNext.textContent = '完成';
@@ -547,8 +506,9 @@
     if (current <= 0) return;
     const id = screens[current];
     if (id === 'risk') {
-      current = scenario === 'A' ? 2 : 3;
-    } else if (id === 'pathA' || id === 'pathB') {
+      // 從風險披露返回：Path A 回 Hub，Path B 回 pathB
+      current = scenario === 'A' ? 1 : 2;
+    } else if (id === 'pathB') {
       current = 1; // back to hub
     } else if (id === 'hub') {
       current = 0;
@@ -631,5 +591,3 @@
 </script>
 </body>
 </html>
-Grok finished responding
-根據flow圖生成新HTML - Grok
