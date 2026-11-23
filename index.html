@@ -1,461 +1,635 @@
+
 <!DOCTYPE html>
-<html lang="zh-Hant">
+<html lang="zh-HK">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>輝立證券 | 專業投資者認證 Demo（系統自動識別路徑）</title>
-  <style>
-    :root {
-      --bg-outer: #e5e7eb;
-      --bg-phone: #f4f6f9;
-      --card-bg: #ffffff;
-      --text-main: #1f2937;
-      --text-muted: #6b7280;
-      --primary: #1d4ed8;
-      --primary-hover: #1e40af;
-      --primary-light: #eff6ff;
-      --border-color: #e5e7eb;
-      --success: #059669;
-      --success-bg: #ecfdf5;
-      --warning-bg: #fffbeb;
-      --warning-border: #f59e0b;
-      --warning-text: #92400e;
-    }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>輝立證券 | 專業投資者認證 Demo（系統自動識別路徑）</title>
+<style>
+  :root {
+    --primary: #111;
+    --accent: #007aff;
+    --success: #34c759;
+    --danger: #ff3b30;
+    --warning: #ff9500;
+    --bg: #f2f2f7;
+    --card: #fff;
+    --text: #1c1c1e;
+    --text-sec: #8e8e93;
+    --border: #e5e5ea;
+    --radius: 12px;
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  html, body { height: 100%; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Helvetica Neue", "PingFang HK", "Microsoft JhengHei", sans-serif; background: #111; color: var(--text); overscroll-behavior: none; }
+  .app-wrapper { min-height: 100%; display: flex; justify-content: center; background: #111; }
+  .phone { width: 100%; max-width: 430px; min-height: 100vh; min-height: 100dvh; background: var(--bg); display: flex; flex-direction: column; position: relative; box-shadow: 0 0 0 1px rgba(255,255,255,0.08); }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "PingFang HK", "Microsoft JhengHei", "Segoe UI", Roboto, sans-serif;
-    }
+  .status-bar { height: 44px; background: #000; color: #fff; display: flex; align-items: center; justify-content: space-between; padding: 0 18px; font-size: 14px; font-weight: 600; flex-shrink: 0; }
+  .status-bar .icons { display: flex; gap: 5px; font-size: 13px; }
 
-    body {
-      background-color: var(--bg-outer);
-      display: flex;
-      justify-content: center;
-      min-height: 100vh;
-      padding: 16px;
-      color: var(--text-main);
-    }
+  .header { background: #000; color: #fff; height: 48px; display: flex; align-items: center; padding: 0 8px; flex-shrink: 0; position: relative; z-index: 20; }
+  .header .back { width: 40px; height: 40px; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 300; cursor: pointer; border-radius: 50%; line-height: 1; }
+  .header .back:active { background: rgba(255,255,255,0.12); }
+  .header .title { position: absolute; left: 0; right: 0; text-align: center; font-size: 17px; font-weight: 600; pointer-events: none; }
 
-    /* 手機模擬外框 */
-    .phone-frame {
-      width: 100%;
-      max-width: 430px;
-      background-color: var(--bg-phone);
-      border-radius: 32px;
-      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.15);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      height: 860px;
-      max-height: 92vh;
-      border: 6px solid #1f2937;
-    }
+  .progress { height: 3px; background: #e5e5ea; flex-shrink: 0; }
+  .progress .bar { height: 100%; background: var(--accent); transition: width 0.3s ease; width: 8%; }
 
-    /* 頂部狀態列 */
-    .status-bar {
-      background: #ffffff;
-      padding: 10px 20px 6px;
-      display: flex;
-      justify-content: space-between;
-      font-size: 12px;
-      font-weight: 600;
-      color: #111827;
-    }
+  .content { flex: 1; overflow-y: auto; -webkit-overflow-scrolling: touch; padding: 20px 16px; padding-bottom: 120px; }
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadeIn 0.22s ease; }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
 
-    /* App 導航列 */
-    .app-header {
-      background: #ffffff;
-      padding: 10px 16px 14px;
-      display: flex;
-      align-items: center;
-      border-bottom: 1px solid var(--border-color);
-      position: relative;
-    }
+  h1 { font-size: 22px; font-weight: 700; margin-bottom: 6px; line-height: 1.3; }
+  h2 { font-size: 16px; font-weight: 600; margin: 20px 0 8px; }
+  p, li { font-size: 15px; line-height: 1.55; color: var(--text-sec); }
+  .highlight { color: var(--warning); font-weight: 500; }
+  .req { color: var(--danger); }
 
-    .back-icon {
-      font-size: 22px;
-      color: #374151;
-      cursor: pointer;
-      padding-right: 12px;
-      user-select: none;
-    }
+  .card { background: var(--card); border-radius: var(--radius); padding: 14px 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+  .card.green { border-left: 4px solid var(--success); }
+  .card.blue { border-left: 4px solid var(--accent); }
+  .card.yellow { border-left: 4px solid var(--warning); }
 
-    .app-title {
-      font-size: 16px;
-      font-weight: 700;
-      color: #111827;
-      flex: 1;
-      text-align: center;
-      margin-right: 24px;
-    }
+  .scenario-btn {
+    display: block; width: 100%; text-align: left; padding: 18px 16px; margin-bottom: 12px;
+    border-radius: 14px; border: 2px solid var(--border); background: #fff; cursor: pointer; transition: all 0.2s;
+  }
+  .scenario-btn:active { transform: scale(0.98); }
+  .scenario-btn.selected-a { border-color: var(--success); background: #f0faf0; }
+  .scenario-btn.selected-b { border-color: var(--warning); background: #fff8f0; }
+  .scenario-btn .tag { display: inline-block; font-size: 11px; padding: 2px 8px; border-radius: 4px; margin-bottom: 6px; font-weight: 600; }
+  .scenario-btn .tag.a { background: #d5e8d4; color: #2d6a2e; }
+  .scenario-btn .tag.b { background: #ffe0b2; color: #e65100; }
+  .scenario-btn strong { display: block; font-size: 16px; margin-bottom: 4px; color: var(--text); }
+  .scenario-btn span { font-size: 13px; color: var(--text-sec); line-height: 1.45; }
 
-    /* 內容滾動區 */
-    .screen-content {
-      flex: 1;
-      overflow-y: auto;
-      padding: 16px;
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
+  .auto-badge { display: inline-flex; align-items: center; gap: 4px; background: #e3f2fd; color: #1565c0; font-size: 12px; font-weight: 600; padding: 4px 10px; border-radius: 20px; margin-bottom: 12px; }
 
-    .step-view {
-      display: none;
-      flex-direction: column;
-      gap: 14px;
-    }
+  .consent-item { display: flex; gap: 12px; padding: 13px 0; border-bottom: 1px solid var(--border); align-items: flex-start; }
+  .consent-item:last-child { border-bottom: none; }
+  .consent-item input[type="checkbox"] { width: 20px; height: 20px; margin-top: 1px; accent-color: var(--accent); flex-shrink: 0; }
+  .consent-item label { font-size: 14px; line-height: 1.45; color: var(--text); cursor: pointer; }
 
-    .step-view.active {
-      display: flex;
-    }
+  .upload-zone { border: 1.5px dashed #c7c7cc; border-radius: var(--radius); padding: 28px 16px; text-align: center; background: #fafafa; margin: 14px 0; cursor: pointer; }
+  .upload-zone:active { border-color: var(--accent); background: #f0f7ff; }
+  .upload-list { margin-top: 10px; }
+  .upload-item { display: flex; align-items: center; gap: 10px; background: #fff; border: 1px solid var(--border); border-radius: 8px; padding: 10px 12px; margin-bottom: 8px; font-size: 14px; }
+  .upload-item .name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .upload-item .remove { color: var(--danger); font-size: 20px; cursor: pointer; padding: 0 4px; }
 
-    /* 卡片與通用樣式 */
-    .card {
-      background: var(--card-bg);
-      border-radius: 14px;
-      padding: 16px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
-      border: 1px solid var(--border-color);
-    }
+  .req-table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 12px 0; }
+  .req-table th, .req-table td { border: 1px solid var(--border); padding: 10px; text-align: left; vertical-align: top; }
+  .req-table th { background: #f5f5f7; width: 26%; font-weight: 600; color: var(--text); }
 
-    .badge {
-      display: inline-block;
-      background: var(--primary-light);
-      color: var(--primary);
-      font-size: 12px;
-      font-weight: 600;
-      padding: 4px 10px;
-      border-radius: 999px;
-      margin-bottom: 8px;
-    }
+  .risk-box { max-height: 300px; overflow-y: auto; border: 1px solid var(--border); border-radius: var(--radius); padding: 14px; background: #fff; margin-bottom: 14px; -webkit-overflow-scrolling: touch; }
+  .scroll-hint { text-align: center; font-size: 13px; color: var(--warning); margin-bottom: 8px; font-weight: 500; }
+  .scroll-hint.done { color: var(--success); }
 
-    h1 {
-      font-size: 19px;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 4px;
-    }
+  .summary-row { display: flex; justify-content: space-between; align-items: flex-start; padding: 9px 0; border-bottom: 1px solid var(--border); font-size: 14px; gap: 12px; }
+  .summary-row:last-child { border-bottom: none; }
+  .summary-row .label { color: var(--text-sec); flex-shrink: 0; }
+  .summary-row .value { font-weight: 600; text-align: right; word-break: break-all; }
 
-    h2 {
-      font-size: 15px;
-      font-weight: 700;
-      color: #111827;
-      margin-bottom: 8px;
-    }
+  .otp-inputs { display: flex; justify-content: center; gap: 8px; margin: 24px 0 12px; }
+  .otp-inputs input { width: 44px; height: 50px; text-align: center; font-size: 20px; font-weight: 600; border: 1.5px solid var(--border); border-radius: 10px; background: #fff; color: var(--text); }
+  .otp-inputs input:focus { outline: none; border-color: var(--accent); box-shadow: 0 0 0 3px rgba(0,122,255,0.18); }
+  .otp-timer { text-align: center; font-size: 13px; color: var(--text-sec); }
+  .otp-timer a { color: var(--accent); text-decoration: none; }
 
-    p {
-      font-size: 13.5px;
-      color: #4b5563;
-      line-height: 1.55;
-    }
+  .status-badge { display: inline-flex; align-items: center; padding: 4px 10px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+  .status-badge.pending { background: #fff3cd; color: #856404; }
 
-    /* 場景選擇按鈕 */
-    .scenario-grid {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 10px;
-    }
+  .rep-card { display: flex; align-items: center; gap: 12px; background: #fff; border: 1px solid var(--border); border-radius: var(--radius); padding: 12px; margin-bottom: 14px; }
+  .rep-avatar { width: 44px; height: 44px; border-radius: 50%; background: #e5e5ea; display: flex; align-items: center; justify-content: center; font-size: 20px; flex-shrink: 0; }
+  .rep-card .name { font-weight: 600; font-size: 15px; }
+  .rep-card .lic { font-size: 12px; color: var(--text-sec); margin-top: 2px; }
 
-    .scenario-btn {
-      border: 2px solid var(--border-color);
-      border-radius: 12px;
-      padding: 12px;
-      background: #ffffff;
-      text-align: left;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
+  .result-icon { width: 68px; height: 68px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 16px auto 12px; }
+  .result-icon.ok { background: #d4edda; color: #155724; }
+  .result-icon.wait { background: #fff3cd; color: #856404; }
 
-    .scenario-btn.selected {
-      border-color: var(--primary);
-      background: var(--primary-light);
-    }
+  .btn-group { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 430px; background: #fff; border-top: 1px solid var(--border); padding: 12px 16px; padding-bottom: calc(12px + var(--safe-bottom)); display: flex; gap: 10px; z-index: 50; }
+  .btn { flex: 1; height: 48px; border-radius: 24px; border: none; font-size: 16px; font-weight: 600; cursor: pointer; transition: opacity 0.15s, transform 0.1s; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.38; cursor: not-allowed; }
+  .btn-primary { background: var(--primary); color: #fff; }
+  .btn-secondary { background: #fff; color: var(--text); border: 1.5px solid var(--border); }
 
-    .scenario-title {
-      font-weight: 700;
-      font-size: 14px;
-      color: #111827;
-      margin-bottom: 4px;
-    }
+  .mt-8 { margin-top: 8px; } .mt-12 { margin-top: 12px; } .mt-16 { margin-top: 16px; }
+  .mb-8 { margin-bottom: 8px; } .text-center { text-align: center; } .text-sm { font-size: 13px; }
+  .fw-600 { font-weight: 600; } .list-disc { padding-left: 18px; } .list-disc li { margin-bottom: 5px; }
+  .divider { height: 1px; background: var(--border); margin: 12px 0; }
+  .call-btn { display: inline-flex; align-items: center; gap: 5px; color: var(--accent); font-size: 14px; font-weight: 500; text-decoration: none; margin-top: 6px; }
+  .net-big { font-size: 20px; font-weight: 700; }
+  .net-big.pass { color: var(--success); }
+  .net-big.under { color: var(--danger); }
 
-    .scenario-desc {
-      font-size: 12.5px;
-      color: #4b5563;
-    }
-
-    /* 聯絡代表橫幅 */
-    .rep-box {
-      background: #f8fafc;
-      border-left: 3px solid var(--primary);
-      padding: 10px 12px;
-      border-radius: 8px;
-      font-size: 13px;
-      color: #334155;
-    }
-
-    /* 風險披露滾動區 */
-    .scroll-hint {
-      text-align: center;
-      font-size: 12.5px;
-      font-weight: 600;
-      color: var(--primary);
-      background: var(--primary-light);
-      padding: 8px;
-      border-radius: 8px;
-      transition: all 0.3s;
-    }
-
-    .scroll-hint.unlocked {
-      background: var(--success-bg);
-      color: var(--success);
-    }
-
-    .disclosure-scroll-box {
-      height: 270px;
-      overflow-y: auto;
-      background: #fafafa;
-      border: 1px solid var(--border-color);
-      border-radius: 12px;
-      padding: 14px;
-      font-size: 13px;
-      color: #374151;
-      line-height: 1.6;
-    }
-
-    .disclosure-scroll-box h3 {
-      font-size: 14px;
-      font-weight: 700;
-      color: #111827;
-      margin: 12px 0 6px;
-    }
-
-    .disclosure-scroll-box p {
-      font-size: 13px;
-      margin-bottom: 8px;
-    }
-
-    .disclosure-scroll-box ul,
-    .disclosure-scroll-box ol {
-      padding-left: 18px;
-      margin-bottom: 10px;
-    }
-
-    .disclosure-scroll-box li {
-      margin-bottom: 6px;
-    }
-
-    /* Consent Boxes */
-    .consent-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      opacity: 0.5;
-      pointer-events: none;
-      transition: opacity 0.3s;
-    }
-
-    .consent-list.active {
-      opacity: 1;
-      pointer-events: auto;
-    }
-
-    .consent-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      background: #ffffff;
-      border: 1px solid var(--border-color);
-      padding: 11px;
-      border-radius: 10px;
-      cursor: pointer;
-    }
-
-    .consent-item input[type="checkbox"] {
-      margin-top: 3px;
-      width: 16px;
-      height: 16px;
-      accent-color: var(--primary);
-      flex-shrink: 0;
-    }
-
-    .consent-item label {
-      font-size: 13px;
-      color: #1f2937;
-      line-height: 1.45;
-      cursor: pointer;
-    }
-
-    /* 上傳區塊 (Path B) */
-    .upload-zone {
-      border: 2px dashed #cbd5e1;
-      border-radius: 12px;
-      padding: 20px;
-      text-align: center;
-      background: #f8fafc;
-      cursor: pointer;
-      transition: border-color 0.2s;
-    }
-
-    .upload-zone.uploaded {
-      border-color: var(--success);
-      background: var(--success-bg);
-    }
-
-    /* 摘要表格 */
-    .summary-row {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 10px 0;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 13.5px;
-    }
-
-    .summary-row:last-child {
-      border-bottom: none;
-      padding-bottom: 0;
-    }
-
-    .summary-row:first-child {
-      padding-top: 0;
-    }
-
-    .summary-label {
-      color: var(--text-muted);
-    }
-
-    .summary-val {
-      font-weight: 600;
-      color: #111827;
-      text-align: right;
-    }
-
-    .warning-box {
-      background: var(--warning-bg);
-      border-left: 4px solid var(--warning-border);
-      padding: 11px 12px;
-      border-radius: 8px;
-      font-size: 12.5px;
-      color: var(--warning-text);
-    }
-
-    /* OTP 輸入框 */
-    .otp-row {
-      display: flex;
-      justify-content: space-between;
-      gap: 6px;
-      margin: 14px 0;
-    }
-
-    .otp-box {
-      width: 44px;
-      height: 48px;
-      text-align: center;
-      font-size: 18px;
-      font-weight: 700;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 10px;
-      background: #ffffff;
-    }
-
-    .otp-box:focus {
-      outline: none;
-      border-color: var(--primary);
-    }
-
-    /* 底部操作列 */
-    .bottom-bar {
-      background: #ffffff;
-      padding: 12px 16px;
-      border-top: 1px solid var(--border-color);
-      display: flex;
-      gap: 10px;
-    }
-
-    .btn {
-      flex: 1;
-      padding: 12px;
-      border-radius: 10px;
-      font-size: 14.5px;
-      font-weight: 600;
-      border: none;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-
-    .btn-primary {
-      background: var(--primary);
-      color: #ffffff;
-    }
-
-    .btn-primary:disabled {
-      background: #93c5fd;
-      cursor: not-allowed;
-    }
-
-    .btn-secondary {
-      background: #f3f4f6;
-      color: #374151;
-      flex: 0.45;
-    }
-
-    .center-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: var(--primary-light);
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 28px;
-      margin: 0 auto 12px;
-    }
-
-    .center-icon.green {
-      background: var(--success-bg);
-      color: var(--success);
-    }
-  </style>
+  .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-12px); background: rgba(0,0,0,0.82); color: #fff; padding: 11px 18px; border-radius: 10px; font-size: 14px; opacity: 0; pointer-events: none; transition: all 0.25s; z-index: 200; max-width: 86%; text-align: center; }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+</style>
 </head>
 <body>
-
-  <div class="phone-frame">
-    <!-- 頂部狀態列 -->
+<div class="app-wrapper">
+  <div class="phone">
     <div class="status-bar">
-      <span>10:30</span>
-      <span>●●● 5G 🔋</span>
+      <span id="clock">10:30</span>
+      <div class="icons"><span>●●●</span><span>5G</span><span>🔋</span></div>
     </div>
 
-    <!-- App 標題列 -->
-    <div class="app-header">
-      <span class="back-icon" id="header-back">‹</span>
-      <span class="app-title">專業投資者認證</span>
+    <div class="header">
+      <div class="back" id="btnBack" onclick="goBack()">‹</div>
+      <div class="title" id="headerTitle">專業投資者認證</div>
     </div>
 
-    <!-- 主內容區 -->
-    <div class="screen-content" id="screen-content">
+    <div class="progress"><div class="bar" id="progressBar"></div></div>
 
-      <!-- ==================== 步驟 0：Demo 場景與介紹 ==================== -->
-      <div class="step-view active" id="view-intro">
-        <div class="card">
-          <span class="badge">Demo 場景選擇</span>
-          <p>系統會根據內部資產自動判定路徑。請選擇要演示的場景：</p>
-          <div class="scenario-grid">
-            <div class="scenario-btn selected" id="opt-path-a" onclick="selectScenario('A')">
-              <div class="scenario-title">場景 A · 滿 800 萬（直接進入風險披露）</div>
-              <div class="scenario-desc">內部資產 ≥ HKD 8,000,000，系統自動識別為 Path A，免資產核驗頁面直接進入風險披露。</div>
-            </div>
-            <div class="scenario-btn" id="opt-path-b" onclick="selectScenario('B')">
-              <div class="scenario-title">場景 B · 未滿 800 萬（Path B 上傳證明）</div>
-              <div class="scenario-desc">內部資產 &lt; HKD 8,000,000，系統自動引導上載外部資產證明。</div>
-            </div>
+    <div class="content" id="mainContent">
+
+      <!-- 0. Scenario Selector -->
+      <div class="screen active" id="screen-scenario">
+        <h1>Demo 場景選擇</h1>
+        <p class="mb-8">系統會根據內部資產自動判定路徑。請選擇要演示的場景：</p>
+
+        <button class="scenario-btn" id="scA" onclick="selectScenario('A')">
+          <span class="tag a">場景 A · 滿 800 萬</span>
+          <strong>內部資產 ≥ HKD 8,000,000</strong>
+          <span>系統自動識別並進入 <b>Path A</b>（內部資產即時核驗）。模擬淨資產 HKD 9.85M。</span>
+        </button>
+
+        <button class="scenario-btn" id="scB" onclick="selectScenario('B')">
+          <span class="tag b">場景 B · 未滿 800 萬</span>
+          <strong>內部資產 &lt; HKD 8,000,000</strong>
+          <span>系統自動識別並進入 <b>Path B</b>（上載外部資產證明）。模擬淨資產 HKD 6.20M。</span>
+        </button>
+      </div>
+
+      <!-- 1. Intelligent Hub -->
+      <div class="screen" id="screen-hub">
+        <h1>專業投資者介紹</h1>
+        <p class="mb-8">根據香港《證券及期貨條例》及《證券及期貨（專業投資者）規則》，成為專業投資者可解鎖更豐富的投資產品。</p>
+
+        <div class="card blue">
+          <strong style="color:var(--text)">合規門檻</strong>
+          <p class="mt-8">個人專業投資者須持有 <span class="highlight">Net Portfolio ≥ HKD 8,000,000</span>（或等值外幣）。系統將自動扣除內部 Margin 欠款與質押借貸後計算淨資產。</p>
+        </div>
+
+        <div class="card" id="hubDetectCard">
+          <div class="auto-badge">系統已自動識別您的帳戶資產</div>
+          <p class="text-sm" id="hubDetectText">—</p>
+        </div>
+
+        <h2>1. 什麼是「專業投資者」？</h2>
+        <p>包括機構專業投資者、法團專業投資者及個人專業投資者。個人專業投資者指持有港元 800 萬（或等值外幣）以上投資組合的個人（現金、存款證及《證券及期貨條例》所定義證券）。</p>
+
+        <h2>2. 為何申請？</h2>
+        <p>成為專業投資者後，可參與國際配售、特定基金產品（包括僅針對專業投資者銷售的認可基金及合法的未經認可基金）等更豐富產品。</p>
+
+        <h2>3. 申請方式</h2>
+        <p>系統會根據您現有帳戶資產自動判定最優路徑：</p>
+        <ul class="list-disc mt-8">
+          <li><strong>路徑 A</strong>：輝立內部資產即時核驗（極速）</li>
+          <li><strong>路徑 B</strong>：上載外部資產證明（1 個工作天審批）</li>
+        </ul>
+
+        <div class="card yellow mt-16">
+          <strong style="color:var(--text)">需要協助？</strong>
+          <p class="mt-8">持牌代表可為您解釋申請細節與產品範圍。</p>
+          <a href="javascript:void(0)" class="call-btn" onclick="showToast('已提交回撥申請')">📞 一鍵預約客服 / 客戶經理電話回撥</a>
+        </div>
+      </div>
+
+      <!-- 2A. Path A -->
+      <div class="screen" id="screen-pathA">
+        <div class="auto-badge">系統自動路由 · Path A</div>
+        <h1>內部資產即時核驗</h1>
+        <p class="mb-8">系統已整合您於輝立的證券、期貨及現金帳戶實時估值。</p>
+
+        <div class="card green">
+          <div class="summary-row"><span class="label">證券帳戶市值</span><span class="value" id="valSec">—</span></div>
+          <div class="summary-row"><span class="label">期貨帳戶權益</span><span class="value" id="valFut">—</span></div>
+          <div class="summary-row"><span class="label">現金帳戶餘額</span><span class="value" id="valCash">—</span></div>
+          <div class="summary-row"><span class="label">減：Margin 欠款 / 質押借貸</span><span class="value" style="color:var(--danger)" id="valMargin">—</span></div>
+          <div class="divider"></div>
+          <div class="summary-row">
+            <span class="label fw-600">Net Portfolio 淨資產</span>
+            <span class="value net-big pass" id="valNet">—</span>
+          </div>
+          <p class="text-sm mt-8">估值日期：2026-11-11（當日收盤牌價折算 · Cap.571D s.2A）</p>
+        </div>
+
+        <div class="card green">
+          <p><strong style="color:var(--text)">已達標</strong>：淨資產 ≥ HKD 8,000,000，可直接繼續申請。</p>
+        </div>
+
+        <label class="consent-item mt-12">
+          <input type="checkbox" id="pathAConfirm">
+          <span>本人確認上述估值資料正確，並知悉淨資產計算已扣除內部債務。</span>
+        </label>
+      </div>
+
+      <!-- 2B. Path B -->
+      <div class="screen" id="screen-pathB">
+        <div class="auto-badge">系統自動路由 · Path B</div>
+        <h1>上傳資產證明</h1>
+        <p class="mb-8">系統偵測內部資產未達標，已自動引導您上載外部證明。</p>
+
+        <div class="card yellow mb-8">
+          <p class="text-sm">目前內部淨資產約 <b>HKD 6.20M</b>，未達 800 萬門檻。請上載外部資產證明以繼續。</p>
+        </div>
+
+        <table class="req-table">
+          <tr>
+            <th>接受證明</th>
+            <td>• 銀行結單 / 證券結單 / 信託證明 / 資產證明<br>• 可多份合併計算，總值不低於 <span class="highlight">800 萬港元</span></td>
+          </tr>
+          <tr>
+            <th>發出日期</th>
+            <td>近一年內（多份證明日期需相同）</td>
+          </tr>
+          <tr>
+            <th>證明內容</th>
+            <td>需包含：①本人姓名、②發出機構、③發出日期、④資產金額。<span class="req">不接受局部截圖</span></td>
+          </tr>
+        </table>
+
+        <h2>證明範例 <span class="text-sm" style="color:var(--accent);font-weight:400">（紅圈必須清晰）</span></h2>
+        <div class="card" style="text-align:center;color:#999;font-size:13px;padding:24px">
+          [示意] 銀行月結單範例<br>① 客戶姓名　② 發行機構　③ 有效日期 & 資產金額
+        </div>
+
+        <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+          <div style="font-size:32px;margin-bottom:6px">📄</div>
+          <p class="fw-600" style="color:var(--text)">點擊或拖放檔案上載</p>
+          <p class="text-sm mt-8">支援 PDF、JPG、PNG</p>
+          <input type="file" id="fileInput" multiple accept=".pdf,.jpg,.jpeg,.png" style="display:none" onchange="handleFiles(this.files)">
+        </div>
+        <div class="upload-list" id="uploadList"></div>
+      </div>
+
+      <!-- 3. Risk Disclosure -->
+      <div class="screen" id="screen-risk">
+        <h1>風險披露與後果揭示</h1>
+        <div class="rep-card">
+          <div class="rep-avatar">👤</div>
+          <div>
+            <div class="name">持牌代表</div>
+            <div class="lic">如有疑問可聯絡您的客戶經理或客服</div>
           </div>
         </div>
 
+        <div class="scroll-hint" id="scrollHint">↓ 請滑動閱讀至底部以啟用同意框</div>
+        <div class="risk-box" id="riskBox" onscroll="checkScroll()">
+          <p><strong>1.</strong> 成功申請成為個人專業投資者之後，輝立證券可為您提供更多投資產品。但該類產品有可能未經香港證監會認可，投資通常帶有較高風險。建議申請前先諮詢獨立第三方專業意見。</p>
+          <br>
+          <p><strong>2.</strong> 成為個人專業投資者後，您清楚明白輝立證券可獲豁免履行《操守準則》第 15.5 段及《成交單據規則》中訂明的某些要求。</p>
+          <br>
+          <p>儘管輝立證券實際上可能仍會提供部分服務／資訊，您明白這並非基於監管責任。可獲豁免的義務包括：</p>
+          <br>
+          <p class="fw-600" style="color:var(--text)">為客戶提供資料</p>
+          <ul class="list-disc">
+            <li>無需提供業務資料及僱員身份與受僱狀況；</li>
+            <li>完成交易後無需盡快確認交易重點；</li>
+            <li>無需提供納斯達克試驗計劃相關資料文件。</li>
+          </ul>
+          <br>
+          <p class="fw-600" style="color:var(--text)">成交單據、戶口結單或收據</p>
+          <ul class="list-disc">
+            <li>無需提供《成交單據規則》所要求的文件。</li>
+          </ul>
+          <br>
+          <p><strong>撤回權利</strong>：您可隨時以書面撤回 PI 身分，提交後進入 <strong>10 個營業日通知期</strong>。</p>
+          <br>
+          <p>個人專業投資者嚴格限定為 <strong>Tier 1（15.5 豁免）</strong>。</p>
+          <div style="height:16px"></div>
+          <p class="text-center text-sm" style="color:#aaa">— 已閱讀至底部 —</p>
+        </div>
+
+        <div id="consentArea" style="opacity:0.4;pointer-events:none">
+          <div class="consent-item">
+            <input type="checkbox" id="c1" onchange="checkConsents()">
+            <label for="c1">本人完全理解 15.3B 披露之專業投資者風險與免除法定保護之後果</label>
+          </div>
+          <div class="consent-item">
+            <input type="checkbox" id="c2" onchange="checkConsents()">
+            <label for="c2">本人自願接受專業投資者身分並確認上述所勾選之特定產品適用範圍</label>
+          </div>
+          <div class="consent-item">
+            <input type="checkbox" id="c3" onchange="checkConsents()">
+            <label for="c3">本人確認知悉並理解擁有隨時以書面撤回此 PI 身分或變更適用範圍的法定權利</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. Review + OTP -->
+      <div class="screen" id="screen-review">
+        <h1>申請摘要與電子驗證</h1>
+        <p class="mb-8">請核對以下資料，確認無誤後進行 OTP 驗證。</p>
+
         <div class="card">
-          <h1>專業投資者介紹</h1>
-          <p style="margin-bottom: 10px;">根據香港《證券及期貨條例》及《證券及期貨（專業投資者）規則》，成為專業投資者可解鎖更豐富的投資產品。</p>
+          <div class="summary-row"><span class="label">身分類別</span><span class="value">個人專業投資者 (Tier 1)</span></div>
+          <div class="summary-row"><span class="label">核驗路徑</span><span class="value" id="reviewPath">—</span></div>
+          <div class="summary-row"><span class="label">淨資產估值</span><span class="value" id="reviewValue">—</span></div>
+          <div class="summary-row"><span class="label">產品授權範圍</span><span class="value">國際配售 / 債券 / VA 等</span></div>
+          <div class="summary-row"><span class="label">風險披露</span><span class="value" style="color:var(--success)">已完成閱讀並同意</span></div>
+        </div>
+
+        <div class="card yellow">
+          <p class="text-sm">本人確認申報資料真實、若有變更將隨時主動匯報。輝立證券保留最終拒絕權。</p>
+        </div>
+
+        <h2>雙重簡訊認證</h2>
+        <p>驗證碼將發送至已登記手機。聯名帳戶各持有者需各自通過驗證。</p>
+
+        <div class="otp-inputs" id="otpBox">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="moveOtp(this,0)">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="moveOtp(this,1)">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="moveOtp(this,2)">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="moveOtp(this,3)">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="moveOtp(this,4)">
+          <input maxlength="1" inputmode="numeric" pattern="[0-9]*" oninput="moveOtp(this,5)">
+        </div>
+        <div class="otp-timer">
+          <span id="otpTimerText">驗證碼已發送 · <span id="countdown">60</span> 秒後可重新獲取</span>
+          <br><a href="javascript:void(0)" id="resendLink" style="display:none" onclick="resendOtp()">重新獲取驗證碼</a>
+        </div>
+      </div>
+
+      <!-- 5. Status -->
+      <div class="screen" id="screen-status">
+        <div class="result-icon wait">⏳</div>
+        <h1 class="text-center">申請已提交</h1>
+        <p class="text-center mb-8">我們已收到您的專業投資者認證申請</p>
+
+        <div class="card">
+          <div class="summary-row"><span class="label">申請編號</span><span class="value">PI-20261111-88421</span></div>
+          <div class="summary-row"><span class="label">當前狀態</span><span class="value"><span class="status-badge pending">Submitted / Under Review</span></span></div>
+          <div class="summary-row"><span class="label">預計完成</span><span class="value" id="etaText">—</span></div>
+        </div>
+
+        <div class="card blue">
+          <strong style="color:var(--text)">狀態說明</strong>
+          <ul class="list-disc mt-8">
+            <li><strong>Submitted / Under Review</strong>：資料審核中</li>
+            <li><strong>Need More Info</strong>：需補件，退回至對應路徑</li>
+            <li><strong>Approved / Rejected</strong>：最終結果</li>
+          </ul>
+        </div>
+        <p class="text-sm text-center mt-16" style="color:var(--text-sec)">審批結果將以 App 推送及電郵通知。</p>
+      </div>
+
+      <!-- 6. Approved -->
+      <div class="screen" id="screen-approved">
+        <div class="result-icon ok">✓</div>
+        <h1 class="text-center">認證成功</h1>
+        <p class="text-center mb-8">您已成為輝立證券個人專業投資者</p>
+
+        <div class="card green">
+          <div class="summary-row"><span class="label">生效日期</span><span class="value">2026-11-11</span></div>
+          <div class="summary-row"><span class="label">有效期至</span><span class="value">2027-11-10（365 天）</span></div>
+          <div class="summary-row"><span class="label">下次年審</span><span class="value">系統將於到期前自動提醒</span></div>
+        </div>
+
+        <div class="card">
+          <strong style="color:var(--text)">後續權益</strong>
+          <ul class="list-disc mt-8">
+            <li>產品權限已即時解鎖，可返回原先被攔截的下單頁面</li>
+            <li>Path A 客戶：若持倉仍 ≥ 800 萬，年審可一鍵續期</li>
+            <li>過期客戶重新認證時系統自動預填歷史數據</li>
+          </ul>
+        </div>
+
+        <div class="card yellow">
+          <strong style="color:var(--text)">撤回入口</strong>
+          <p class="mt-8 text-sm">帳戶設定內常設 PI 身分變更與撤回入口。提交後進入 10 個營業日通知期。</p>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="btn-group">
+      <button class="btn btn-secondary" id="btnPrev" style="display:none" onclick="goBack()">上一步</button>
+      <button class="btn btn-primary" id="btnNext">開始</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Screens order (no manual path selection)
+  const screens = ['scenario', 'hub', 'pathA', 'pathB', 'risk', 'review', 'status', 'approved'];
+  let current = 0;
+  let scenario = null;   // 'A' | 'B'
+  let riskScrolled = false;
+  let files = [];
+  let otpTimer = null;
+
+  const dataA = {
+    sec: 'HKD 7,420,000', fut: 'HKD 1,680,000', cash: 'HKD 1,150,000',
+    margin: '− HKD 400,000', net: 'HKD 9,850,000'
+  };
+  const dataB = {
+    sec: 'HKD 4,820,000', fut: 'HKD 980,000', cash: 'HKD 820,000',
+    margin: '− HKD 420,000', net: 'HKD 6,200,000'
+  };
+
+  function selectScenario(s) {
+    scenario = s;
+    document.getElementById('scA').classList.toggle('selected-a', s === 'A');
+    document.getElementById('scB').classList.toggle('selected-b', s === 'B');
+    updateUI();
+  }
+
+  function fillPathA() {
+    const d = dataA;
+    document.getElementById('valSec').textContent = d.sec;
+    document.getElementById('valFut').textContent = d.fut;
+    document.getElementById('valCash').textContent = d.cash;
+    document.getElementById('valMargin').textContent = d.margin;
+    document.getElementById('valNet').textContent = d.net;
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById('screen-' + id).classList.add('active');
+    document.getElementById('mainContent').scrollTop = 0;
+    if (id === 'pathA') fillPathA();
+    updateUI();
+  }
+
+  function updateUI() {
+    const id = screens[current];
+    const titles = {
+      scenario: 'Demo 場景選擇',
+      hub: '專業投資者認證',
+      pathA: '內部資產核驗',
+      pathB: '上傳資產證明',
+      risk: '風險披露',
+      review: '申請摘要與驗證',
+      status: '申請狀態',
+      approved: '認證結果'
+    };
+    document.getElementById('headerTitle').textContent = titles[id] || '專業投資者認證';
+
+    const progressMap = { scenario:5, hub:15, pathA:35, pathB:35, risk:55, review:72, status:88, approved:100 };
+    document.getElementById('progressBar').style.width = (progressMap[id] || 0) + '%';
+
+    const btnNext = document.getElementById('btnNext');
+    const btnPrev = document.getElementById('btnPrev');
+    btnPrev.style.display = (current === 0 || id === 'status' || id === 'approved') ? 'none' : 'block';
+
+    // Hub detect text
+    if (id === 'hub' && scenario) {
+      document.getElementById('hubDetectText').innerHTML = scenario === 'A'
+        ? '偵測結果：內部淨資產約 <b>HKD 9.85M</b>，已達標。<br>系統將自動進入 <b>路徑 A（內部即時核驗）</b>。'
+        : '偵測結果：內部淨資產約 <b>HKD 6.20M</b>，未達 800 萬。<br>系統將自動進入 <b>路徑 B（上載外部證明）</b>。';
+    }
+
+    if (id === 'scenario') {
+      btnNext.textContent = '開始演示';
+      btnNext.disabled = !scenario;
+      btnNext.onclick = () => { current = 1; showScreen('hub'); };
+    } else if (id === 'hub') {
+      btnNext.textContent = '繼續';
+      btnNext.disabled = false;
+      btnNext.onclick = () => {
+        // System auto route
+        if (scenario === 'A') {
+          current = 2; // pathA
+          showScreen('pathA');
+        } else {
+          current = 3; // pathB
+          showScreen('pathB');
+        }
+      };
+    } else if (id === 'pathA') {
+      btnNext.textContent = '下一步';
+      btnNext.disabled = !document.getElementById('pathAConfirm').checked;
+      btnNext.onclick = () => { current = 4; showScreen('risk'); };
+      document.getElementById('pathAConfirm').onchange = () => updateUI();
+    } else if (id === 'pathB') {
+      btnNext.textContent = '下一步';
+      btnNext.disabled = files.length === 0;
+      btnNext.onclick = () => { current = 4; showScreen('risk'); };
+    } else if (id === 'risk') {
+      btnNext.textContent = '下一步';
+      const ok = riskScrolled && document.getElementById('c1').checked && document.getElementById('c2').checked && document.getElementById('c3').checked;
+      btnNext.disabled = !ok;
+      btnNext.onclick = () => {
+        document.getElementById('reviewPath').textContent = scenario === 'A' ? '路徑 A（內部資產 · 系統自動）' : '路徑 B（外部證明 · 系統自動）';
+        document.getElementById('reviewValue').textContent = scenario === 'A' ? dataA.net : '待人工核實（外部證明）';
+        current = 5; showScreen('review');
+        startOtpTimer();
+      };
+    } else if (id === 'review') {
+      btnNext.textContent = '提交申請';
+      btnNext.disabled = !isOtpComplete();
+      btnNext.onclick = () => {
+        document.getElementById('etaText').textContent = scenario === 'A' ? 'Path A：接近即時核准' : 'Path B：1 個工作天內人工審批';
+        current = 6; showScreen('status');
+      };
+    } else if (id === 'status') {
+      btnNext.textContent = '模擬審批通過';
+      btnNext.disabled = false;
+      btnNext.onclick = () => { current = 7; showScreen('approved'); };
+      btnPrev.style.display = 'none';
+    } else if (id === 'approved') {
+      btnNext.textContent = '完成';
+      btnNext.disabled = false;
+      btnNext.onclick = () => showToast('演示結束，可返回重新選擇場景');
+      btnPrev.style.display = 'none';
+    }
+  }
+
+  function goBack() {
+    if (current <= 0) return;
+    const id = screens[current];
+    if (id === 'risk') {
+      current = scenario === 'A' ? 2 : 3;
+    } else if (id === 'pathA' || id === 'pathB') {
+      current = 1; // back to hub
+    } else if (id === 'hub') {
+      current = 0;
+    } else {
+      current--;
+    }
+    showScreen(screens[current]);
+  }
+
+  function checkScroll() {
+    const box = document.getElementById('riskBox');
+    if (box.scrollTop + box.clientHeight >= box.scrollHeight - 24) {
+      riskScrolled = true;
+      const hint = document.getElementById('scrollHint');
+      hint.textContent = '✓ 已閱讀完畢';
+      hint.classList.add('done');
+      document.getElementById('consentArea').style.opacity = '1';
+      document.getElementById('consentArea').style.pointerEvents = 'auto';
+      updateUI();
+    }
+  }
+  function checkConsents() { updateUI(); }
+
+  function handleFiles(fileList) {
+    for (let f of fileList) {
+      files.push(f);
+      const div = document.createElement('div');
+      div.className = 'upload-item';
+      div.innerHTML = `<span class="name">📄 ${f.name}</span><span class="remove" onclick="removeFile(this,'${f.name}')">×</span>`;
+      document.getElementById('uploadList').appendChild(div);
+    }
+    updateUI();
+  }
+  function removeFile(el, name) {
+    files = files.filter(f => f.name !== name);
+    el.parentElement.remove();
+    updateUI();
+  }
+
+  function moveOtp(el, idx) {
+    if (el.value && idx < 5) el.nextElementSibling?.focus();
+    updateUI();
+  }
+  function isOtpComplete() {
+    return Array.from(document.querySelectorAll('#otpBox input')).every(i => i.value.length === 1);
+  }
+  function startOtpTimer() {
+    let sec = 60;
+    document.getElementById('countdown').textContent = sec;
+    document.getElementById('otpTimerText').style.display = 'inline';
+    document.getElementById('resendLink').style.display = 'none';
+    clearInterval(otpTimer);
+    otpTimer = setInterval(() => {
+      sec--;
+      document.getElementById('countdown').textContent = sec;
+      if (sec <= 0) {
+        clearInterval(otpTimer);
+        document.getElementById('otpTimerText').style.display = 'none';
+        document.getElementById('resendLink').style.display = 'inline';
+      }
+    }, 1000);
+  }
+  function resendOtp() { showToast('驗證碼已重新發送'); startOtpTimer(); }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 2400);
+  }
+
+  function updateClock() {
+    const now = new Date();
+    document.getElementById('clock').textContent = now.getHours().toString().padStart(2,'0') + ':' + now.getMinutes().toString().padStart(2,'0');
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+
+  updateUI();
+</script>
+</body>
+</html>
+Grok finished responding
+根據flow圖生成新HTML - Grok
